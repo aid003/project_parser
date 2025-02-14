@@ -3,9 +3,39 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import fs from "fs";
 import logger from "./logger";
+import UserAgent from "user-agents";
+import { faker } from "@faker-js/faker";
+import randomUserAgent from "random-useragent";
+import UAParser from "ua-parser-js";
+
+function generateBrowserParams() {
+  // Генерируем случайный User-Agent
+  const userAgentInstance = new UserAgent();
+  const randomUA = randomUserAgent.getRandom();
+  const selectedUserAgent =
+    Math.random() > 0.5 ? userAgentInstance.toString() : randomUA;
+
+  // Разбираем User-Agent для определения параметров
+  const parser = new UAParser(selectedUserAgent);
+  const browserData = parser.getResult();
+
+  return {
+    userAgent: selectedUserAgent,
+    viewport: {
+      width: faker.number.int({ min: 1280, max: 1920 }),
+      height: faker.number.int({ min: 720, max: 1080 }),
+    },
+    locale: faker.location.countryCode(),
+    timezoneId: faker.location.timeZone(),
+    deviceScaleFactor: Math.random() > 0.5 ? 1 : 2,
+  };
+}
 
 async function scrapeDynamic(url: string) {
   logger.info(`Начинаем парсинг динамического сайта: ${url}`);
+
+  const browserParams = generateBrowserParams();
+  logger.info(`Используем User-Agent: ${browserParams.userAgent}`);
 
   const browser = await chromium.launch({
     headless: false,
@@ -13,11 +43,11 @@ async function scrapeDynamic(url: string) {
   });
 
   const context = await browser.newContext({
-    userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    viewport: { width: 1366, height: 768 },
-    locale: "en-US",
-    timezoneId: "America/New_York",
+    userAgent: browserParams.userAgent,
+    viewport: browserParams.viewport,
+    locale: browserParams.locale,
+    timezoneId: browserParams.timezoneId,
+    deviceScaleFactor: browserParams.deviceScaleFactor,
   });
 
   const page = await context.newPage();
