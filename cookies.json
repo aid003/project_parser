@@ -1,0 +1,252 @@
+[
+  {
+    "name": "WMF-Last-Access",
+    "value": "14-Feb-2025",
+    "domain": "ru.wikipedia.org",
+    "path": "/",
+    "expires": 1742256469.515657,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "WMF-Last-Access-Global",
+    "value": "14-Feb-2025",
+    "domain": ".wikipedia.org",
+    "path": "/",
+    "expires": 1742256469.516009,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "GeoIP",
+    "value": "RU:SPE::59.94:30.31:v4",
+    "domain": ".wikipedia.org",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "NetworkProbeLimit",
+    "value": "0.001",
+    "domain": "ru.wikipedia.org",
+    "path": "/",
+    "expires": 1739521611.516068,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "ruwikimwuser-sessionId",
+    "value": "ce14c39e82e4cf9ba247",
+    "domain": "ru.wikipedia.org",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "WMF-Last-Access",
+    "value": "14-Feb-2025",
+    "domain": "en.wikipedia.org",
+    "path": "/",
+    "expires": 1742256094.027509,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "NetworkProbeLimit",
+    "value": "0.001",
+    "domain": "en.wikipedia.org",
+    "path": "/",
+    "expires": 1739521613.027583,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "srv_id",
+    "value": "uyIwScobRw94OLBu.UZCFjaK-_iJXdtFra2ukqCyQxNyB_pj8V_KBGFVFu54z2Uee0fYVWgeOZqfhKQUBm5uO.kg38eQWpBmeBAIgwqxcrtu4l9P_fZlfgIb3axfliXEo=.web",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1774078676.642177,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "gMltIuegZN2COuSe",
+    "value": "EOFGWsm50bhh17prLqaIgdir1V0kgrvN",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1739605154.007976,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "u",
+    "value": "36y2zz22.zqizn8.zr6qs9p298g0",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1774078754.008157,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "v",
+    "value": "1739518754",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1739520555.369299,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "buyer_laas_location",
+    "value": "653240",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1771054754.008214,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "luri",
+    "value": "sankt-peterburg",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1739605154.008231,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "buyer_location_id",
+    "value": "653240",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1771054754.008247,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "sx",
+    "value": "H4sIAAAAAAAC%2FwTAMQ7CMAwF0Lv8mcEh8becQ7AwsJMYISHUdmg7RLl73wBJtm78OF1Z6GHvyN5NpTXrjjpwoOIpy%2BMb9%2F8quv9e24kbAjVZdoomLXNeAQAA%2F%2F80OxjOTAAAAA%3D%3D",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1740123554.008299,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "dfp_group",
+    "value": "47",
+    "domain": ".avito.ru",
+    "path": "/",
+    "expires": 1739519354.008337,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "abp",
+    "value": "0",
+    "domain": "www.avito.ru",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "i",
+    "value": "O+ZuMEKIKKKuKij32D4nWml7YTXp2ShiJPoiw+6KIYgXPHpYMNqpmj0tPiwXinDJvcAyCnG7Az0xUjQZAMgSTuEKxbs=",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1774078754.46219,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "yandexuid",
+    "value": "4787470091739518755",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1774078754.46235,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "yashr",
+    "value": "2060740991739518755",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1771054755,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "receive-cookie-deprecation",
+    "value": "1",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1771054755,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "bh",
+    "value": "EigiQ2hyb21pdW0iO3Y9IjEzMyIsICJOb3QoQTpCcmFuZCI7dj0iOTkiKgI/MDoJIldpbmRvd3MiYKPmu70Gah7cyuH/CJLYobEDn8/h6gP7+vDnDev//fYPm9rNhwg=",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1774078754.46243,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "cssid",
+    "value": "09119693-5d42-4bbd-a3b1-ba64ac5bf9dd",
+    "domain": ".www.avito.ru",
+    "path": "/",
+    "expires": 1739520555,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "cssid_exp",
+    "value": "1739520555679",
+    "domain": ".www.avito.ru",
+    "path": "/",
+    "expires": 1739520555,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "cookie_consent_shown",
+    "value": "1",
+    "domain": "www.avito.ru",
+    "path": "/",
+    "expires": 1744702755,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]
