@@ -283,3 +283,23 @@ Browser logs:
 [2025-02-14T20:54:48.208] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 210
 [2025-02-14T20:55:18.209] [INFO] default - Периодическая сохранка cookies...
 [2025-02-14T20:55:18.214] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 210
+[2025-02-14T21:00:53.333] [INFO] default - Создаем новый контекст браузера...
+[2025-02-14T21:00:53.335] [INFO] default - Загружаем fingerprint из fingerprint.json
+[2025-02-14T21:00:53.834] [INFO] default - Загружены cookies из ./cookies.json. Кол-во: 210
+[2025-02-14T21:00:53.836] [INFO] default - Контекст браузера создан.
+[2025-02-14T21:00:53.836] [INFO] default - Открываем новую страницу: https://avito.ru
+[2025-02-14T21:00:53.864] [INFO] default - Загружаем fingerprint из fingerprint.json
+[2025-02-14T21:01:04.536] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 210
+[2025-02-14T21:01:04.537] [INFO] default - Открываем новую страницу: https://google.com
+[2025-02-14T21:01:04.566] [INFO] default - Загружаем fingerprint из fingerprint.json
+[2025-02-14T21:01:07.571] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 210
+[2025-02-14T21:01:07.572] [INFO] default - Парсим контент: https://www.avito.ru/
+[2025-02-14T21:01:07.705] [INFO] default - Найдено заголовков: 1
+[2025-02-14T21:01:07.706] [INFO] default - Найдено ссылок: 164
+[2025-02-14T21:01:07.714] [INFO] default - Парсинг завершен.
+[2025-02-14T21:01:07.714] [INFO] default - Парсим контент: https://www.google.com/
+[2025-02-14T21:01:07.768] [INFO] default - Найдено заголовков: 0
+[2025-02-14T21:01:07.768] [INFO] default - Найдено ссылок: 22
+[2025-02-14T21:01:07.770] [INFO] default - Парсинг завершен.
+[2025-02-14T21:01:23.850] [INFO] default - Периодическая сохранка cookies...
+[2025-02-14T21:01:23.854] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 215
