@@ -11,11 +11,9 @@ import { parseWithCheerio } from "../Parse/parseWithCheerio";
 
 const USER_DATA_DIR = "./user-data";
 
-// 1. Отдельная функция для создания контекста
 export async function createBrowserContext(): Promise<BrowserContext> {
   logger.info("Создаем новый контекст браузера...");
 
-  // Загружаем или генерируем 'fingerprint' (userAgent, locale, timezoneId и т.д.)
   const fingerprint = loadOrGenerateFingerprint();
 
   const args: string[] = ["--window-size=1920,1080"];
@@ -29,10 +27,8 @@ export async function createBrowserContext(): Promise<BrowserContext> {
     colorScheme: fingerprint.colorScheme,
   });
 
-  // Загружаем cookies
   await loadCookies(browserContext);
 
-  // Настраиваем заголовки (если нужно)
   let extraHeaders: Record<string, string> = {
     "Accept-Language": "ru-RU,ru;q=0.9",
   };
@@ -46,14 +42,12 @@ export async function createBrowserContext(): Promise<BrowserContext> {
   }
   await browserContext.setExtraHTTPHeaders(extraHeaders);
 
-  // Можно сделать периодическое сохранение cookies
   const intervalMs = 30_000;
   const cookiesInterval = setInterval(async () => {
     logger.info("Периодическая сохранка cookies...");
     await saveCookies(browserContext);
   }, intervalMs);
 
-  // Чтобы при закрытии контекста остановить таймер
   browserContext.on("close", () => {
     clearInterval(cookiesInterval);
   });
@@ -62,7 +56,6 @@ export async function createBrowserContext(): Promise<BrowserContext> {
   return browserContext;
 }
 
-// 2. Функция для открытия новой страницы и перехода на URL
 export async function openPage(
   browserContext: BrowserContext,
   url: string
@@ -70,9 +63,7 @@ export async function openPage(
   logger.info(`Открываем новую страницу: ${url}`);
   const page = await browserContext.newPage();
 
-  // Добавляем различные "обфускации" и подмены до загрузки страницы
-  // (должно делаться до page.goto, иначе может быть поздно)
-  const fingerprint = loadOrGenerateFingerprint(); // или храните его иначе, главное синхронизировать с createBrowserContext
+  const fingerprint = loadOrGenerateFingerprint(); 
   await page.addInitScript((fp) => {
     Object.defineProperties(navigator, {
       hardwareConcurrency: { get: () => fp.hardwareConcurrency },
@@ -104,19 +95,16 @@ export async function openPage(
     };
   }, fingerprint);
 
-  // Имитация "человеческих" задержек перед и после перехода
   await simulateHumanDelays(page);
   await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
   await simulateHumanDelays(page);
   await simulateMouseMovements(page);
 
-  // Сохраняем cookies после загрузки
   await saveCookies(browserContext);
 
   return page;
 }
 
-// 3. Функция, в которой вы можете парсить конкретный URL
 export async function parseDynamicPage(page: Page) {
   try {
     logger.info(`Парсим контент: ${page.url()}`);
@@ -129,7 +117,7 @@ export async function parseDynamicPage(page: Page) {
   }
 }
 
-// 4. Функция закрытия контекста (когда он больше не нужен)
+
 export async function closeBrowserContext(browserContext: BrowserContext) {
   logger.info("Закрываем браузерный контекст...");
   await saveCookies(browserContext);

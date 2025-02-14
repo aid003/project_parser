@@ -13,6 +13,8 @@ async function main() {
     const page1 = await openPage(browserContext, "https://avito.ru");
 
     const page2 = await openPage(browserContext, "https://google.com");
+
+    await parseDynamicPage(page1);
     await parseDynamicPage(page2);
   } catch (err) {
     logger.error("Ошибка в основном процессе:", err);
