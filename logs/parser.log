@@ -143,3 +143,12 @@
 [2025-02-14T20:20:13.639] [INFO] default - Найдено ссылок: 158
 [2025-02-14T20:20:13.684] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 182
 [2025-02-14T20:20:13.685] [INFO] default - Браузер закрыт.
+[2025-02-14T20:20:33.037] [INFO] default - Начинаем парсинг динамического сайта: https://avito.ru
+[2025-02-14T20:20:33.038] [INFO] default - fingerprint.json не найден, генерируем новый...
+[2025-02-14T20:20:33.145] [INFO] default - Новый fingerprint сохранён в ./fingerprint.json
+[2025-02-14T20:20:33.613] [INFO] default - Загружены cookies из ./cookies.json. Кол-во: 182
+[2025-02-14T20:20:46.774] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 191
+[2025-02-14T20:20:48.087] [INFO] default - Найдено заголовков: 1
+[2025-02-14T20:20:48.087] [INFO] default - Найдено ссылок: 156
+[2025-02-14T20:20:48.106] [INFO] default - Cookies сохранены в файл ./cookies.json. Кол-во: 190
+[2025-02-14T20:20:48.107] [INFO] default - Браузер закрыт.
