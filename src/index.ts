@@ -3,39 +3,36 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import fs from "fs";
 import logger from "./logger";
-import UserAgent from "user-agents";
+// @ts-ignore
+import * as UserAgent from "random-useragent";
 import { faker } from "@faker-js/faker";
-import randomUserAgent from "random-useragent";
-import UAParser from "ua-parser-js";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
-function generateBrowserParams() {
-  // Генерируем случайный User-Agent
-  const userAgentInstance = new UserAgent();
-  const randomUA = randomUserAgent.getRandom();
-  const selectedUserAgent =
-    Math.random() > 0.5 ? userAgentInstance.toString() : randomUA;
-
-  // Разбираем User-Agent для определения параметров
-  const parser = new UAParser(selectedUserAgent);
-  const browserData = parser.getResult();
+async function generateFingerprint() {
+  const fp = await FingerprintJS.load();
+  const fingerprint = await fp.get();
 
   return {
-    userAgent: selectedUserAgent,
+    userAgent: UserAgent.getRandom(),
     viewport: {
-      width: faker.number.int({ min: 1280, max: 1920 }),
-      height: faker.number.int({ min: 720, max: 1080 }),
+      width: faker.number.int({ min: 1024, max: 1920 }),
+      height: faker.number.int({ min: 768, max: 1080 }),
     },
     locale: faker.location.countryCode(),
     timezoneId: faker.location.timeZone(),
-    deviceScaleFactor: Math.random() > 0.5 ? 1 : 2,
+    deviceScaleFactor: faker.number.int({ min: 1, max: 2 }),
+    colorScheme: (Math.random() > 0.5 ? "dark" : "light") as "dark" | "light",
+    hardwareConcurrency: faker.number.int({ min: 2, max: 16 }),
+    deviceMemory: faker.number.int({ min: 2, max: 8 }),
+    platform: Math.random() > 0.5 ? "Win32" : "Linux",
+    fingerprint: fingerprint.visitorId,
   };
 }
 
 async function scrapeDynamic(url: string) {
   logger.info(`Начинаем парсинг динамического сайта: ${url}`);
 
-  const browserParams = generateBrowserParams();
-  logger.info(`Используем User-Agent: ${browserParams.userAgent}`);
+  const fingerprint = await generateFingerprint();
 
   const browser = await chromium.launch({
     headless: false,
@@ -43,37 +40,37 @@ async function scrapeDynamic(url: string) {
   });
 
   const context = await browser.newContext({
-    userAgent: browserParams.userAgent,
-    viewport: browserParams.viewport,
-    locale: browserParams.locale,
-    timezoneId: browserParams.timezoneId,
-    deviceScaleFactor: browserParams.deviceScaleFactor,
+    userAgent: (await fingerprint).userAgent,
+    viewport: (await fingerprint).viewport,
+    locale: (await fingerprint).locale,
+    timezoneId: (await fingerprint).timezoneId,
+    deviceScaleFactor: (await fingerprint).deviceScaleFactor,
+    colorScheme: (await fingerprint).colorScheme,
   });
 
   const page = await context.newPage();
 
+  await page.addInitScript((fp) => {
+    Object.defineProperties(navigator, {
+      hardwareConcurrency: { get: () => fp.hardwareConcurrency },
+      deviceMemory: { get: () => fp.deviceMemory },
+      platform: { get: () => fp.platform },
+    });
+  }, await fingerprint);
+
   try {
-    // Загрузка куков перед входом на сайт
     if (fs.existsSync("cookies.json")) {
       const cookies = JSON.parse(fs.readFileSync("cookies.json", "utf-8"));
       await context.addCookies(cookies);
       logger.info(`Загрузил куки из файла.`);
     }
 
-    // Переход по URL
     await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
 
-    // Получение контента страницы
     const content = await page.content();
-
-    // Парсинг с Cheerio
     parseWithCheerio(content);
   } catch (error) {
-    if (error instanceof Error) {
-      logger.error(`Ошибка парсинга: ${error.message}`);
-    } else {
-      logger.error(`Ошибка парсинга: ${error}`);
-    }
+    logger.error(`Ошибка парсинга: ${(error as Error).message}`);
   } finally {
     try {
       const cookies = await context.cookies();
@@ -91,8 +88,6 @@ async function scrapeDynamic(url: string) {
 function parseWithCheerio(html: string) {
   try {
     const $ = cheerio.load(html);
-
-    // Пример: Извлекаем заголовки h1, h2 и ссылки
     const titles = $("h1, h2")
       .map((_, el) => $(el).text().trim())
       .get();
