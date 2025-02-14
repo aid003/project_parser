@@ -16,7 +16,6 @@
   "license": "ISC",
   "dependencies": {
     "@faker-js/faker": "^9.5.0",
-    "@fingerprintjs/fingerprintjs": "^4.6.0",
     "axios": "^1.7.9",
     "bullmq": "^5.40.4",
     "cheerio": "^1.0.0",

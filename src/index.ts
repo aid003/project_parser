@@ -1,87 +1,239 @@
-import { chromium } from "playwright";
-import axios from "axios";
+import { chromium, BrowserContext, Page, Cookie } from "playwright";
 import * as cheerio from "cheerio";
 import fs from "fs";
 import logger from "./logger";
 // @ts-ignore
 import * as UserAgent from "random-useragent";
-import { faker } from "@faker-js/faker";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { FingerprintGenerator } from "fingerprint-generator";
 
-async function generateFingerprint() {
-  const fp = await FingerprintJS.load();
-  const fingerprint = await fp.get();
+const USER_DATA_DIR = "./user-data";
+const FINGERPRINT_FILE = "./fingerprint.json";
+const COOKIES_FILE = "./cookies.json";
 
-  return {
-    userAgent: UserAgent.getRandom(),
-    viewport: {
-      width: faker.number.int({ min: 1024, max: 1920 }),
-      height: faker.number.int({ min: 768, max: 1080 }),
-    },
-    locale: faker.location.countryCode(),
-    timezoneId: faker.location.timeZone(),
-    deviceScaleFactor: faker.number.int({ min: 1, max: 2 }),
-    colorScheme: (Math.random() > 0.5 ? "dark" : "light") as "dark" | "light",
-    hardwareConcurrency: faker.number.int({ min: 2, max: 16 }),
-    deviceMemory: faker.number.int({ min: 2, max: 8 }),
-    platform: Math.random() > 0.5 ? "Win32" : "Linux",
-    fingerprint: fingerprint.visitorId,
-  };
+function loadOrGenerateFingerprint() {
+  if (fs.existsSync(FINGERPRINT_FILE)) {
+    logger.info("Загружаем fingerprint из fingerprint.json");
+    const saved = JSON.parse(fs.readFileSync(FINGERPRINT_FILE, "utf-8"));
+    return saved;
+  } else {
+    logger.info("fingerprint.json не найден, генерируем новый...");
+
+    const generator = new FingerprintGenerator();
+    const fingerprintData = generator.getFingerprint();
+
+    const allUserAgents = UserAgent.getAll();
+    const desktopUserAgents = allUserAgents.filter((ua: string) => {
+      const isDesktopOS =
+        ua.includes("Windows NT") ||
+        ua.includes("Mac OS X") ||
+        ua.includes("X11; Linux");
+      const isNotMobile = !ua.toLowerCase().includes("mobile");
+
+      const isModernEnough = (() => {
+        const matchChrome = ua.match(/Chrome\/(\d+)/);
+        if (matchChrome) {
+          const version = parseInt(matchChrome[1], 10);
+          return version >= 100;
+        }
+        const matchFirefox = ua.match(/Firefox\/(\d+)/);
+        if (matchFirefox) {
+          const version = parseInt(matchFirefox[1], 10);
+          return version >= 100;
+        }
+        const matchSafari = ua.match(/Version\/(\d+)/);
+        if (ua.includes("Safari") && matchSafari) {
+          const version = parseInt(matchSafari[1], 10);
+          return version >= 14;
+        }
+        return true;
+      })();
+
+      return isDesktopOS && isNotMobile && isModernEnough;
+    });
+
+    const randomUserAgent =
+      desktopUserAgents.length > 0
+        ? desktopUserAgents[
+            Math.floor(Math.random() * desktopUserAgents.length)
+          ]
+        : UserAgent.getRandom();
+
+    let platform: "Win32" | "Linux x86_64" | "MacIntel" = "Win32";
+    if (randomUserAgent.includes("Mac OS X")) {
+      platform = "MacIntel";
+    } else if (randomUserAgent.includes("X11; Linux")) {
+      platform = "Linux x86_64";
+    }
+
+    const colorSchemes: Array<"dark" | "light" | "no-preference"> = [
+      "dark",
+      "light",
+      "no-preference",
+    ];
+    const randomColorScheme =
+      colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+
+    const newFingerprint = {
+      userAgent: randomUserAgent,
+      viewport: {
+        width: 1920,
+        height: 1080,
+      },
+      locale: "ru-RU",
+      timezoneId: "Europe/Moscow",
+      colorScheme: randomColorScheme,
+      hardwareConcurrency: 8,
+      deviceMemory: 8,
+      platform,
+      customFingerprint: fingerprintData.fingerprint,
+    };
+
+    fs.writeFileSync(FINGERPRINT_FILE, JSON.stringify(newFingerprint, null, 2));
+    logger.info(`Новый fingerprint сохранён в ${FINGERPRINT_FILE}`);
+    return newFingerprint;
+  }
+}
+
+async function loadCookies(context: BrowserContext) {
+  if (fs.existsSync(COOKIES_FILE)) {
+    try {
+      const cookies = JSON.parse(
+        fs.readFileSync(COOKIES_FILE, "utf-8")
+      ) as Cookie[];
+      if (cookies.length) {
+        await context.addCookies(cookies);
+        logger.info(
+          `Загружены cookies из ${COOKIES_FILE}. Кол-во: ${cookies.length}`
+        );
+      }
+    } catch (err) {
+      logger.error(`Не удалось загрузить cookies: ${(err as Error).message}`);
+    }
+  }
+}
+
+async function saveCookies(context: BrowserContext) {
+  try {
+    const cookies = await context.cookies();
+    fs.writeFileSync(COOKIES_FILE, JSON.stringify(cookies, null, 2));
+    logger.info(
+      `Cookies сохранены в файл ${COOKIES_FILE}. Кол-во: ${cookies.length}`
+    );
+  } catch (err) {
+    logger.error(`Ошибка при сохранении cookies: ${(err as Error).message}`);
+  }
+}
+
+async function simulateHumanDelays(page: Page) {
+  const delay = 500 + Math.random() * 1500;
+  await page.waitForTimeout(delay);
+}
+
+async function simulateMouseMovements(page: Page) {
+  const startX = 100 + Math.random() * 100;
+  const startY = 200 + Math.random() * 100;
+  const endX = startX + Math.random() * 200;
+  const endY = startY + Math.random() * 200;
+  await page.mouse.move(startX, startY);
+  await page.waitForTimeout(100 + Math.random() * 200);
+  await page.mouse.move(endX, endY);
 }
 
 async function scrapeDynamic(url: string) {
   logger.info(`Начинаем парсинг динамического сайта: ${url}`);
 
-  const fingerprint = await generateFingerprint();
+  const fingerprint = loadOrGenerateFingerprint();
+  const args: string[] = ["--window-size=1920,1080"];
 
-  const browser = await chromium.launch({
+  const browserContext = await chromium.launchPersistentContext(USER_DATA_DIR, {
     headless: false,
-    args: ["--no-proxy-server"],
+    args,
+    viewport: null,
+    userAgent: fingerprint.userAgent,
+    locale: fingerprint.locale,
+    timezoneId: fingerprint.timezoneId,
+    colorScheme: fingerprint.colorScheme,
   });
 
-  const context = await browser.newContext({
-    userAgent: (await fingerprint).userAgent,
-    viewport: (await fingerprint).viewport,
-    locale: (await fingerprint).locale,
-    timezoneId: (await fingerprint).timezoneId,
-    deviceScaleFactor: (await fingerprint).deviceScaleFactor,
-    colorScheme: (await fingerprint).colorScheme,
-  });
+  // Загружаем cookies из файла
+  await loadCookies(browserContext);
 
-  const page = await context.newPage();
+  // Client Hints (только если Chrome)
+  let extraHeaders: Record<string, string> = {
+    "Accept-Language": "ru-RU,ru;q=0.9",
+  };
+  if (fingerprint.userAgent.includes("Chrome/")) {
+    extraHeaders = {
+      ...extraHeaders,
+      "sec-ch-ua": `"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"`,
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": `"Windows"`,
+    };
+  }
+  await browserContext.setExtraHTTPHeaders(extraHeaders);
 
+  // Каждые 60 секунд сохраняем cookies
+  const intervalMs = 60_000;
+  const cookiesInterval = setInterval(async () => {
+    logger.info("Периодическая сохранка cookies...");
+    await saveCookies(browserContext);
+  }, intervalMs);
+
+  const page = await browserContext.newPage();
+
+  // Подделываем окружение (navigator, screen, WebGL).
   await page.addInitScript((fp) => {
     Object.defineProperties(navigator, {
       hardwareConcurrency: { get: () => fp.hardwareConcurrency },
       deviceMemory: { get: () => fp.deviceMemory },
       platform: { get: () => fp.platform },
+      webdriver: { get: () => false },
+      maxTouchPoints: { get: () => 0 },
+      languages: { get: () => ["ru-RU", "ru"] },
     });
-  }, await fingerprint);
+
+    Object.defineProperty(navigator, "plugins", {
+      get: () => [
+        { name: "Chrome PDF Plugin", filename: "internal-pdf-viewer" },
+      ],
+    });
+
+    // screen.width/height = 1920×1080 (как в fingerprint)
+    Object.defineProperties(screen, {
+      width: { get: () => fp.viewport.width },
+      height: { get: () => fp.viewport.height },
+    });
+
+    // devicePixelRatio не устанавливаем (оставим 1)
+    (window as any).chrome = { runtime: {} };
+
+    const getParameter = WebGLRenderingContext.prototype.getParameter;
+    WebGLRenderingContext.prototype.getParameter = function (parameter) {
+      if (parameter === 37445) return "Intel OpenGL";
+      if (parameter === 37446) return "Chrome GPU";
+      return getParameter.call(this, parameter);
+    };
+  }, fingerprint);
 
   try {
-    if (fs.existsSync("cookies.json")) {
-      const cookies = JSON.parse(fs.readFileSync("cookies.json", "utf-8"));
-      await context.addCookies(cookies);
-      logger.info(`Загрузил куки из файла.`);
-    }
+    await simulateHumanDelays(page);
 
     await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
+    await saveCookies(browserContext);
+
+    await simulateHumanDelays(page);
+    await simulateMouseMovements(page);
 
     const content = await page.content();
     parseWithCheerio(content);
   } catch (error) {
     logger.error(`Ошибка парсинга: ${(error as Error).message}`);
+    await saveCookies(browserContext);
   } finally {
-    try {
-      const cookies = await context.cookies();
-      fs.writeFileSync("cookies.json", JSON.stringify(cookies, null, 2));
-      logger.info(`Обновлённые куки записаны в файл.`);
-    } catch (error) {
-      logger.error(`Ошибка при сохранении куков: ${(error as Error).message}`);
-    }
-
-    await browser.close();
-    logger.info(`Браузер закрыт.`);
+    clearInterval(cookiesInterval);
+    await saveCookies(browserContext);
+    // await browserContext.close();
+    logger.info("Браузер закрыт.");
   }
 }
 
@@ -105,5 +257,8 @@ function parseWithCheerio(html: string) {
   }
 }
 
-const url = "https://avito.ru";
-scrapeDynamic(url);
+// Пример запуска
+(async () => {
+  const url = "https://avito.ru";
+  await scrapeDynamic(url);
+})();
